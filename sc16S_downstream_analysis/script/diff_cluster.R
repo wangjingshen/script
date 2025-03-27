@@ -1,0 +1,87 @@
+# circos each group
+
+suppressMessages(suppressWarnings({
+    library(Seurat)
+    library(tidyverse)
+    library(argparser)
+    library(circlize)
+}))
+color_protocol <- c("#0067AA","#FF7F00","#00A23F","#FF1F1D","#A763AC","#B45B5D","#FF8AB6","#B6B800","#01C1CC","#85D5F8","#FFC981","#C8571B","#727272","#EFC800","#8A5626","#502E91","#59A4CE","#344B2B","#FBE29D","#FDD6E6","#849C8C","#F07C6F","#000101")
+
+# args --
+argv <- arg_parser('')
+argv <- add_argument(argv, "--rds", help = "rds")
+argv <- add_argument(argv, "--split_group", help = "default:F")
+argv <- add_argument(argv, "--outdir", help = "output dir, default: 02.diff_cluster")
+argv <- parse_args(argv)
+
+rds <- argv$rds
+split_group <- ifelse(is.na(argv$split_group), "F", argv$split_group)
+outdir <- ifelse(is.na(argv$outdir), "02.diff_cluster", argv$outdir)
+
+if(!dir.exists(outdir)){
+    dir.create(outdir, recursive = T)
+}
+
+# readRDS
+data_seurat <- readRDS(rds)
+data_seurat$cluster <- as.character(data_seurat$cluster)
+genus <- colnames(data_seurat@meta.data)[(which(colnames(data_seurat@meta.data) == "total_genus") + 1) : ncol(data_seurat@meta.data)]
+
+function_wilcox_cluster <- function(data, analysis_c, out){
+    data$compare_g <- as.character(data$cluster)
+    data$compare_g[ data$cluster != analysis_c] = "others"
+    data$compare_g <- factor(data$compare_g, levels = c(analysis_c, "others"))  # set levels
+    print(table(data$compare_g))
+
+    genus_diff_stat <- do.call(rbind, lapply(genus, function(x){
+        data$analysis_genus <- data@meta.data[,x]
+        if(sum(data$analysis_genus)>0){  # filter all 0 genus
+            stat_df <- ggpubr::compare_means(analysis_genus~compare_g, data@meta.data, method = "wilcox.test") %>% dplyr::select(-.y.)
+            mean_df <- aggregate(data$analysis_genus, by = list(data$compare_g), FUN=mean)
+            #print(mean_df)
+            #            Group.1           x
+            #1 Epithelial_cells 0.004048583
+            #2           others 0.002367264
+            for (i in 1:nrow(mean_df)){
+                stat_df[,paste0("mean_", mean_df[i,1])] = mean_df[i,2]
+            }
+            stat_df <- as.data.frame(stat_df)
+            #print(class(stat_df))
+            colnames(stat_df)[ which(colnames(stat_df) == paste0("mean_", analysis_c))] = "mean1"
+            colnames(stat_df)[ which(colnames(stat_df) == "mean_others")] = "mean2"
+            stat_df$minus <- stat_df[, "mean1"] - stat_df[, "mean2"]  # minus
+            stat_df$genus <- x
+            return(stat_df[,c(ncol(stat_df), 1:(ncol(stat_df)-1))])
+        }else{
+            cat(paste0(x, ": all 0, skip.\n"))  # must use cat; if print, will merge to genus_diff_stat
+        }
+    }))
+    genus_diff_stat <- arrange(genus_diff_stat, p.adj)
+    write.table(genus_diff_stat, str_glue("{out}/{analysis_c}_wilcox_test_sigall.tsv"), sep = "\t", quote = F, row.names = F)
+    return(genus_diff_stat)
+    # p < 0.05
+    #genus_diff_stat_sig <- genus_diff_stat[ genus_diff_stat$p <0.05,]
+    #write.table(genus_diff_stat_sig, str_glue("{outdir}/{analysis_c}_wilcox_test_sig.tsv"), sep = "\t", quote = F, row.names = F)
+}
+
+if(split_group == "F"){
+    res <- do.call(rbind, lapply(unique(data_seurat$cluster), function_wilcox_cluster, data = data_seurat, out = outdir))
+    write.table(res, str_glue("{outdir}/wilcox_test_sigall.tsv"), sep = "\t", quote = F, row.names = F)
+
+    file.copy("/SGRNJ06/randd/USER/wangjingshen/script/sc16S_down/doc/diff_cluster/README.txt", str_glue("{outdir}/README.txt"))
+}else{
+    for (i in unique(data_seurat$group)){
+        outpath = str_glue("{outdir}/group_{i}/")
+        if(!dir.exists(outpath)){
+            dir.create(outpath, recursive = T)
+        }
+        data_sub <- subset(data_seurat, subset = group == i)
+        res <- do.call(rbind, lapply(unique(data_sub$cluster), function_wilcox_cluster, data = data_sub, out = outpath))
+        write.table(res, str_glue("{outpath}/wilcox_test_sigall_group_{i}.tsv"), sep = "\t", quote = F, row.names = F)
+
+        file.copy("/SGRNJ06/randd/USER/wangjingshen/script/sc16S_down/doc/diff_cluster/README.txt", str_glue("{outpath}/README.txt"))
+    }
+}
+
+cat("diff done. \n")
