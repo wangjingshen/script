@@ -1,5 +1,5 @@
 结果说明：
-***_wilcox_test_sigall: ***组特异性富集的微生物显著性统计表格
+***_wilcox_test_sigall: ***特异性富集的微生物显著性统计表格
 
 genus:       微生物种属
 group1:      ***组

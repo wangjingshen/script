@@ -1,0 +1,5 @@
+intergenic_v0.py   生成bed和bam
+
+gff2bed.py: 调控元件gff转bed格式
+intergenic_bed.py: 获取基因间bed文件
+ 

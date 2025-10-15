@@ -14,7 +14,7 @@ argv <- add_argument(argv, "--rds", help = "rds")
 argv <- add_argument(argv, "--split_group", help = "default:F")
 argv <- add_argument(argv, "--analysis_genus", help = "analysis genus, default: total_genus")
 argv <- add_argument(argv, "--nFeatures", help = "nFeatures, default:500")
-argv <- add_argument(argv, "--outdir", help = "output dir, default: 04.transcriptome_diversity")
+argv <- add_argument(argv, "--outdir", help = "output dir, default: 03.transcriptome_diversity")
 argv <- parse_args(argv)
 
 rds <- argv$rds
@@ -22,7 +22,7 @@ split_group <- ifelse(is.na(argv$split_group), "F", argv$split_group)
 analysis_genus <- ifelse(is.na(argv$analysis_genus), "total_genus", argv$analysis_genus)
 nFeatures <- ifelse(is.na(argv$nFeatures), 500, as.numeric(argv$nFeatures))
 umi_threshold <- ifelse(analysis_genus == "total_genus", 2, 0)  # set umi threshold
-outdir <- ifelse(is.na(argv$outdir), "04.transcriptome_diversity", argv$outdir)
+outdir <- ifelse(is.na(argv$outdir), "03.transcriptome_diversity", argv$outdir)
 
 if(!dir.exists(outdir)){
     dir.create(outdir, recursive = T)
@@ -36,7 +36,6 @@ data_seurat$genus_detect <- factor(ifelse(data_seurat@meta.data[,analysis_genus]
 ## shannon
 hvg <- VariableFeatures(FindVariableFeatures(data_seurat, nfeatures = nFeatures))
 norm <- t(as.matrix(data_seurat[["RNA"]]@data[hvg, ]))
-#print(norm[1:3,1:3])
 data_seurat$Shannon_diversity <- diversity(norm, index = "shannon")
 
 df_shannon <- data.frame(Shannon_diversity = data_seurat$Shannon_diversity,
@@ -94,10 +93,10 @@ function_gplot <- function(df, g){
             scale_fill_manual(values = df_color$color[match(df_gplot$cluster, df_color$cluster)]) +  # 
             theme_classic() + 
             labs(x="Cluster",y="-log10(P)") + 
-            ggtitle(paste0("group: ", g)) +
+            ggtitle(paste0(analysis_genus, "_", g)) +
             theme(legend.position = "none") +
             coord_flip()
-            #geom_hline(yintercept = -log10(0.05), color="red", linetype = 5)+  # dashed
+            #geom_hline(yintercept = -log10(0.05), color="red", linetype = 5)  # dashed
     return(p)
 }
 
@@ -113,6 +112,6 @@ if(split_group == "T"){
     ggsave(str_glue("{outdir}/shannon_diversity_barplot.pdf"), height = 5, width = 7)
 }
 
-file.copy("/SGRNJ06/randd/USER/wangjingshen/script/sc16S_down/doc/transcriptome_diversity/README.txt", str_glue("{outdir}/README.txt"))
+file.copy("/SGRNJ06/randd/USER/wangjingshen/script_dev/sc16S_downstream_analysis/doc/transcriptome_diversity.txt", str_glue("{outdir}/README.txt"))
 
 cat("transcriptome diversity done. \n")

@@ -1,4 +1,4 @@
-# ref: Tumor microbiome links cellular programs and immunity in pancreatic cancer
+# prepdata
 
 suppressWarnings(suppressMessages({
     library(Seurat)
@@ -60,7 +60,6 @@ df_genus <- lapply(df_genus, function(x){
     return(df)
 })
 df_genus <- do.call(rbind, df_genus)
-#print(df_genus[1:2,1:2])
 df_genus <- df_genus[ colnames(data_seurat),]
 df_genus <- df_genus[, colSums(df_genus)>0]   # fix filter rds, some genus all 0
 all_genus <- colnames(df_genus) # update all_genus
@@ -80,22 +79,4 @@ data_seurat$total_genus <- rowSums(df_genus)
 data_seurat@meta.data <- cbind.data.frame(data_seurat@meta.data, df_genus)
 saveRDS(data_seurat, str_glue('{outdir}/data_seurat.rds'))
 
-#
-# genus barcode count
-#    g1 g2
-# bc1
-# bc2
-genus_bc <- data.frame(genus = names(sort(colSums(df_genus > 0), decreasing = T)),
-                       detect_barcode = as.numeric(sort(colSums(df_genus > 0), decreasing = T))) %>%
-                       mutate(cell_number = ncol(data_seurat),
-                              percent = paste(round(detect_barcode/cell_number*100, 2),"%"))
-write.table(genus_bc, str_glue('{outdir}/genus_detect_barcode.tsv'), sep = "\t", quote = F, row.names = F)
-
-
-# genus umi
-genus_umi <- data.frame(genus = names(colSums(df_genus)),
-                        umi = as.numeric(colSums(df_genus))) %>%
-    arrange(desc(umi)) %>%
-    mutate(total_umi = sum(umi),
-           percent = paste(round(umi/total_umi*100, 2),"%"))
-write.table(genus_umi, str_glue('{outdir}/genus_detect_umi.tsv'), sep = "\t", quote = F, row.names = F)
+cat("prepdata done. \n")
