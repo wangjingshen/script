@@ -1,0 +1,133 @@
+{
+    "sample_summary": {
+        "display_title": "Sample",
+        "metric_list": [
+            {
+                "name": "Sample ID",
+                "value": "DG_Target",
+                "total": null,
+                "fraction": null,
+                "display": "DG_Target",
+                "help_info": null,
+                "show": true
+            },
+            {
+                "name": "Assay",
+                "value": "pathseq",
+                "total": null,
+                "fraction": null,
+                "display": "pathseq",
+                "help_info": null,
+                "show": true
+            },
+            {
+                "name": "Chemistry",
+                "value": "scopeV3.0.1",
+                "total": null,
+                "fraction": null,
+                "display": "scopeV3.0.1 (kit V2)",
+                "help_info": "For more information, see <a href=\"https://github.com/singleron-RD/CeleScope/blob/cbf5df39b74628fbcc1d9265728dcfe86b6989f2/doc/chemistry.md\">here</a>.",
+                "show": true
+            },
+            {
+                "name": "Software Version",
+                "value": "2.2.0dev1",
+                "total": null,
+                "fraction": null,
+                "display": "2.2.0dev1",
+                "help_info": null,
+                "show": true
+            }
+        ],
+        "comment_metric_list": [],
+        "help_content": [],
+        "comments": []
+    },
+    "starsolo_summary": {
+        "display_title": "Starsolo",
+        "metric_list": [],
+        "comment_metric_list": [],
+        "help_content": [],
+        "comments": []
+    },
+    "mapping_summary": {
+        "display_title": "Mapping to Host Genome",
+        "metric_list": [
+            {
+                "name": "Genome",
+                "value": "Mus_musculus.GRCm39.110",
+                "total": null,
+                "fraction": null,
+                "display": "Mus_musculus.GRCm39.110",
+                "help_info": null,
+                "show": true
+            },
+            {
+                "name": "Reads Mapped To Unique Loci",
+                "value": 54.44,
+                "total": null,
+                "fraction": null,
+                "display": "54.44%",
+                "help_info": "Reads that mapped uniquely to the genome.",
+                "show": true
+            },
+            {
+                "name": "Reads Mapped To Multiple Loci",
+                "value": 0.3,
+                "total": null,
+                "fraction": null,
+                "display": "0.3%",
+                "help_info": "Reads that mapped to multiple loci in the genome.",
+                "show": true
+            },
+            {
+                "name": "Reads Mapped Uniquely To Transcriptome",
+                "value": 54.05,
+                "total": null,
+                "fraction": null,
+                "display": "54.05%",
+                "help_info": "Reads that mapped to a unique gene in the transcriptome. These reads are used for UMI counting.",
+                "show": true
+            },
+            {
+                "name": "Mapped Reads Assigned To Exonic Regions",
+                "value": 98.45,
+                "total": null,
+                "fraction": null,
+                "display": "98.45%",
+                "help_info": "Reads that assigned to exonic regions of genes.",
+                "show": true
+            },
+            {
+                "name": "Mapped Reads Assigned To Intronic Regions",
+                "value": 0.54,
+                "total": null,
+                "fraction": null,
+                "display": "0.54%",
+                "help_info": "Reads that assigned to intronic regions of genes.",
+                "show": true
+            },
+            {
+                "name": "Mapped Reads Assigned To Intergenic Regions",
+                "value": 0.0,
+                "total": null,
+                "fraction": null,
+                "display": "0.0%",
+                "help_info": "Reads that can not be assigned to a gene will be considered as intergenic reads.",
+                "show": true
+            },
+            {
+                "name": "Mapped Reads Assigned Antisense To Gene",
+                "value": 1.01,
+                "total": null,
+                "fraction": null,
+                "display": "1.01%",
+                "help_info": "Reads that assigned to the opposite strand of genes.",
+                "show": true
+            }
+        ],
+        "comment_metric_list": [],
+        "help_content": [],
+        "comments": []
+    },
+}

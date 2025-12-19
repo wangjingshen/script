@@ -1,0 +1,29 @@
+此脚本用于生成 pathseq 云端去除环境菌的矩阵和报告
+环境菌 DOI: 10.1186/s12915-014-0087-z
+
+使用说明：
+
+## step1: 云端转录组分析目录转本地格式
+
+示例路径：/SGRNJ06/randd/USER/wangjingshen/script/sc16S_environment_filter_cloud/test/zl
+
+paths.txt 文件内容为云端转录组分析路径（例如，/SGRNJ07/Standard_Analysis/PROJ03/PROJ_23.lims/P25011401_SCOPEv2/NC1/8dd4335f-bedb-43bf-b7a3-41a9dedc2517）。
+```
+source activate celescope2.2.0
+cloud-convert paths.txt
+```
+
+## step2：填写mapfile，运行此脚本
+
+示例路径：/SGRNJ06/randd/USER/wangjingshen/script/sc16S_environment_filter_cloud/test
+
+mapfile有三列, 依次为：
+1. 16S云端分析路径(云端16S分析路径，例如：/SGRNJ07/Standard_Analysis/PROJ03/PROJ_23.lims/P25011401_16S/NC1-16S/30f56136-177c-4694-aff4-d5524b2f1e5a/), 
+2. 样本名 
+3. 配对的转录组路径(云端转录组转本地的路径，例如：/SGRNJ06/randd/USER/wangjingshen/script/sc16S_environment_filter_cloud/test/zl/NC1/)
+
+```
+source activate celescope2.2.0
+python /SGRNJ06/randd/USER/wangjingshen/script/sc16S_environment_filter_cloud/script/environment_filter.py \
+    --mapfile mapfile
+```
