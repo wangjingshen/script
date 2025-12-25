@@ -20,7 +20,7 @@ CONFIG = {
     "EPOCHS": 400,
     "FilterSize": 8,
     "MinClusterSize": 20,
-    "N_CLUSTERS": 10,
+    "N_CLUSTERS": 10
 }
 
 
@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 
 def execute_cmd(command) -> None:
-    logger.debug(f"Executing: {command}")
+    logger.info(f"Executing: {command}")
     try:
         subprocess.check_call(command, shell=True)
     except subprocess.CalledProcessError as e:
@@ -116,7 +116,7 @@ class IStar:
     def cluster(self) -> None:
         logger.info(f"[{self.spname}] Running cluster step.")
         # segment image by gene features
-        execute_cmd(f'python {ROOT}/istar/cluster.py --filter-size={CONFIG["FilterSize"]} --min-cluster-size={CONGIG["MinClusterSize"]} --n-clusters={CONFIG["N_CLUSTERS"]} --mask={self.spname}/mask-small.png {self.spname}/embeddings-gene.pickle {self.spname}/clusters-gene/')
+        execute_cmd(f'python {ROOT}/istar/cluster.py --filter-size={CONFIG["FilterSize"]} --min-cluster-size={CONFIG["MinClusterSize"]} --n-clusters={CONFIG["N_CLUSTERS"]} --mask={self.spname}/mask-small.png {self.spname}/embeddings-gene.pickle {self.spname}/clusters-gene/')
         # differential analysis by clusters
         execute_cmd(f'python {ROOT}/istar/aggregate_imputed.py {self.spname}')
         execute_cmd(f'python {ROOT}/istar/reorganize_imputed.py {self.spname}')
@@ -144,10 +144,11 @@ def parse_mapfile(mapfile, step):
 
 def run_single(dir, image, pos, spname, step):
     try:
-        IStar(dir, image, pos, spname, step).run()
+        runner = IStar(dir, image, pos, spname, step)
+        runner.run()
         logger.info(f'Completed: {spname}')
     except Exception as e:
-        logger.error("JOB FAILED", dir, image, pos, spname, step,
+        logger.error(f'JOB FAILED: {spname}',
               file=sys.stderr)
         traceback.print_exc()
 

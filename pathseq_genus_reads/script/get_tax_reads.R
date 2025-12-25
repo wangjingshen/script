@@ -8,6 +8,7 @@ argv <- arg_parser('')
 argv <- add_argument(argv, "--sample", help = "sample")
 argv <- add_argument(argv, "--pathseq_tsv", help = "pathseq tsv")  # celescope_16S/Control-16S/02.pathseq/Control-16S_pathseq.tsv
 argv <- add_argument(argv, "--downsample_tsv", help = "downsample tsv")  # celescope_16S/Control-16S/02.pathseq/Control-16S_downsample.tsv
+argv <- add_argument(argv, "--umi_mtx", help = "umi mtx")
 argv <- add_argument(argv, "--tax_id", help = "tax_id")
 argv <- add_argument(argv, "--tax_name", help = "tax_name")
 argv <- add_argument(argv, "--match_dir", help = "match_dir")
@@ -17,6 +18,7 @@ argv <- parse_args(argv)
 sample <- argv$sample
 pathseq_tsv <- argv$pathseq_tsv
 downsample_tsv <- argv$downsample_tsv
+umi_mtx <- argv$umi_mtx
 tax_id <- argv$tax_id
 tax_name <- argv$tax_name
 outdir <- ifelse(is.na(argv$outdir), "outdir", argv$outdir)
@@ -61,5 +63,9 @@ match_bc <- read.table(match_bc)[,1]
 df_tax_id <- merge(data.frame(barcode = match_bc), df_tax_id,  by = "barcode", all.x = T)
 df_tax_id [ is.na(df_tax_id)] <- 0
 df_tax_id <- df_tax_id[ match(match_bc, df_tax_id$barcode),]
+
+# update filter umi
+df_umi <- read.table(umi_mtx, header=T, row.names=1)
+df_tax_id$umi <- as.numeric(df_umi[tax_name,])
 
 write.table(df_tax_id, str_glue("{outdir}/{sample}_{tax_name}.tsv"), row.names=F, sep="\t", quote=F)
