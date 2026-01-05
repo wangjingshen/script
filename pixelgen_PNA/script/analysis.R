@@ -9,8 +9,7 @@ suppressMessages(suppressWarnings({
     library(argparser)
 }))
 
-#
-isotype_control_fraction_cutoff <- 0.001
+isotype_controls = c("mIgG1", "mIgG2a", "mIgG2b")
 
 # args --
 argv <- arg_parser('')
@@ -92,7 +91,7 @@ pg_data_combined <- pg_data_combined %>%
 
 
 # Normalize
-isotype_controls = c("mIgG1", "mIgG2a", "mIgG2b")
+
 if(normalize_method == "dsb"){
     pg_data_combined <- pg_data_combined %>% 
         JoinLayers() %>% 
@@ -123,27 +122,6 @@ if(rm_batch == "no"){
 }
 pg_data_combined <- FindClusters(pg_data_combined, random.seed = 1, resolution = resolution, verbose = F)
 
-# singleR --
-function_singleR <- function(data, species){
-    if(species == "human"){
-        ref = readRDS("/SGRNJ06/randd/USER/wangjingshen/share/singleR_ref_rds/HumanPrimaryCellAtlasData.rds")
-    }
-    if(species == "mouse"){
-        ref = readRDS("/SGRNJ06/randd/USER/wangjingshen/share/singleR_ref_rds/MouseRNAseqData.rds")
-    }
-    
-    data_anno <- data@assays$PNA@layers$data
-    row.names(data_anno) <- row.names(data)
-    colnames(data_anno) <- colnames(data)
-    
-    anno <- SingleR(test = data_anno, ref = ref, 
-                    clusters = unlist(data$seurat_clusters),
-                    assay.type.test=1, labels = ref$label.main)
-    cell_type_singleR <- plyr::mapvalues(x = data$seurat_clusters, from = row.names(anno), to = anno$labels)
-    return(cell_type_singleR)
-}
-pg_data_combined$cluster <- function_singleR(pg_data_combined, "human")
-
 # plot --
 options(repr.plot.height = 6, repr.plot.width = 8)
 p <- DimPlot(pg_data_combined, reduction = "umap", group.by = "spname") +
@@ -157,11 +135,6 @@ ggsave(str_glue("{outdir}/gname.png"), plot = p, height = 5, width = 8)
 p <- DimPlot(pg_data_combined, reduction = "umap", group.by = "seurat_clusters") +
     coord_fixed()
 ggsave(str_glue("{outdir}/seurat_clusters.png"), plot = p, height = 5, width = 8)
-
-p <- DimPlot(pg_data_combined, reduction = "umap", group.by = "clusters") +
-    coord_fixed()
-ggsave(str_glue("{outdir}/clusters.png"), plot = p, height = 5, width = 8)
-
 
 # saveRDS
 saveRDS(pg_data_combined, str_glue("{outdir}/data.rds"))

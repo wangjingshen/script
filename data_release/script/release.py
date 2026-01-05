@@ -100,12 +100,12 @@ if __name__ == "__main__":
     parser.add_argument('--mapfile_json',help='input path name file',required=True)
     parser.add_argument('--outdir',help='results dir')
     parser.add_argument('--data_type',help='Types of data to be uploaded.Choose from fastq,matrix and BAM, multiple selections are allowed, separated by ",".')
-    parser.add_argument('--rna_outdir',help='rna outdir')
-    parser.add_argument('--tag_outdir',help='tag outdir')
-    parser.add_argument('--ebv_outdir',help='ebv outdir')
-    parser.add_argument('--bcr_outdir',help='bcr outdir')
-    parser.add_argument('--tcr_outdir',help='tcr outdir')
-    parser.add_argument('--snp_outdir',help='snp outdir')
+    parser.add_argument('--rna_celescope',help='rna outdir')
+    parser.add_argument('--tag_celescope',help='tag outdir')
+    parser.add_argument('--ebv_celescope',help='ebv outdir')
+    parser.add_argument('--bcr_celescope',help='bcr outdir')
+    parser.add_argument('--tcr_celescope',help='tcr outdir')
+    parser.add_argument('--snp_celescope',help='snp outdir')
     
     args = parser.parse_args()
 
@@ -118,25 +118,24 @@ if __name__ == "__main__":
         for tag in data_dict:
             cp_fastqs(data_dict[tag],f'{outdir}/fastq/{tag}')
     if 'rna_matrix' in data_type:
-        rna_outdir = args.rna_outdir.split(",")
-        print(rna_outdir)
-        res = [cp_matrixs('rna', x, outdir) for x in rna_outdir]
+        rna_celescope = args.rna_celescope.split(",")
+        res = [cp_matrixs('rna', x, outdir) for x in rna_celescope]
     if 'tag_matrix' in data_type:
-        tag_outdir = args.tag_outdir.split(",")
-        res = [cp_matrixs('tag', x, outdir) for x in tag_outdir]
+        tag_celescope = args.tag_celescope.split(",")
+        res = [cp_matrixs('tag', x, outdir) for x in tag_celescope]
     if 'ebv_matrix' in data_type:
-        ebv_outdir = args.ebv_outdir.split(",")
-        res = [cp_matrixs('ebv', x, outdir) for x in ebv_outdir]
+        ebv_celescope = args.ebv_celescope.split(",")
+        res = [cp_matrixs('ebv', x, outdir) for x in ebv_celescope]
     if 'bcr_matrix' in data_type:
-        bcr_outdir = args.bcr_outdir.split(",")
-        res = [cp_matrixs('bcr', x, outdir) for x in bcr_outdir]
+        bcr_celescope = args.bcr_celescope.split(",")
+        res = [cp_matrixs('bcr', x, outdir) for x in bcr_celescope]
     if 'tcr_matrix' in data_type:
-        tcr_outdir = args.tcr_outdir.split(",")
-        res = [cp_matrixs('tcr', x, outdir) for x in tcr_outdir]
+        tcr_celescope = args.tcr_celescope.split(",")
+        res = [cp_matrixs('tcr', x, outdir) for x in tcr_celescope]
     if 'snp_matrix' in data_type:
-        snp_outdir = args.snp_outdir.split(",")
-        res = [cp_matrixs('snp', x, outdir) for x in snp_outdir]
+        snp_celescope = args.snp_celescope.split(",")
+        res = [cp_matrixs('snp', x, outdir) for x in snp_celescope]
 
     cmd_tar = f'tar -zcvf {outdir}.tar.gz {outdir}'
-    os.system(cmd_tar)
+    #os.system(cmd_tar)
         

@@ -105,6 +105,7 @@ if(normalize_method == "clr"){
         Normalize(method = "clr", assay = "clr_assay")  
 }
 
+# cluster
 DefaultAssay(pg_data_combined) <- "PNA"
 pg_data_combined <- pg_data_combined %>%
     ScaleData(verbose = F) %>%
@@ -113,15 +114,14 @@ pg_data_combined <- pg_data_combined %>%
 if(rm_batch == "no"){
     pg_data_combined <- pg_data_combined %>%
         RunUMAP(dims = 1 : ndims, verbose = F) %>%
-        FindNeighbors(dims = 1 : ndims, verbose = F) %>%
-        FindClusters(random.seed = 1, resolution = resolution, verbose = F)
+        FindNeighbors(dims = 1 : ndims, verbose = F)
 }else{
     pg_data_combined <- pg_data_combined %>%
         RunHarmony(group.by.vars = rm_batch_var, reduction = "pca", reduction.save = "harmony") %>%
         RunUMAP(reduction = "harmony", dims = 1:ndims, verbose = F) %>%
-        FindNeighbors(dims = 1 : 10, reduction = "harmony", verbose = F) %>%
-        FindClusters(random.seed = 1, resolution = resolution, verbose = F)
+        FindNeighbors(dims = 1 : 10, reduction = "harmony", verbose = F) 
 }
+pg_data_combined <- FindClusters(pg_data_combined, random.seed = 1, resolution = resolution, verbose = F)
 
 # singleR --
 function_singleR <- function(data, species){
