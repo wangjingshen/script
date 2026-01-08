@@ -10,16 +10,16 @@ env/
 *.log
 
 # 忽略临时文件
-**/*.tmp
-**/*.swp
+*.tmp
+*.swp
 
 # 忽略文件夹
-test/
+test*/
 code/
 result/
 .ipynb_checkpoints
 
 # 忽略文件
-**/*.rds
-**/*.ipynb
-**/*.pth
+*.rds
+*.ipynb
+*.pth
