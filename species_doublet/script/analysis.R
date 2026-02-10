@@ -84,17 +84,17 @@ function_plot <- function(data_count, mode, name){
 
     df_stat <- data.frame(
         hs_number = sum(bc_df$species == "human"),
-        mm_number = sum(bc_df$species == "human"),
+        mm_number = sum(bc_df$species == "mouse"),
         doublets_number = sum(bc_df$species == "doublets"),
         median_umi_hs_in_human = median( bc_df$hs_umi[ bc_df$species == "human"]),
         median_umi_mm_in_human = median( bc_df$mm_umi[ bc_df$species == "human"]),
         median_umi_hs_in_mouse = median( bc_df$hs_umi[ bc_df$species == "mouse"]),
         median_umi_mm_in_mouse = median( bc_df$mm_umi[ bc_df$species == "mouse"]),
 
-        mean_umi_hs_in_human = median( bc_df$hs_umi[ bc_df$species == "human"]),
-        mean_umi_mm_in_human = median( bc_df$mm_umi[ bc_df$species == "human"]),
-        mean_umi_hs_in_mouse = median( bc_df$hs_umi[ bc_df$species == "mouse"]),
-        mean_umi_mm_in_mouse = median( bc_df$mm_umi[ bc_df$species == "mouse"])
+        mean_umi_hs_in_human = mean( bc_df$hs_umi[ bc_df$species == "human"]),
+        mean_umi_mm_in_human = mean( bc_df$mm_umi[ bc_df$species == "human"]),
+        mean_umi_hs_in_mouse = mean( bc_df$hs_umi[ bc_df$species == "mouse"]),
+        mean_umi_mm_in_mouse = mean( bc_df$mm_umi[ bc_df$species == "mouse"])
     )
     write.table(t(df_stat), str_glue("{name}/{name}_stat.tsv"), col.names=F, sep="\t", quote=F)
 
