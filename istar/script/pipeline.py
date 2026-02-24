@@ -144,9 +144,9 @@ class IStar:
         # outs
         mkdir(f'{self.spname}/outs/')
         #os.chdir(f'{self.spname}/outs/') 
-        execute_cmd(f'cd {self.spname}/outs/ && ln -s ../cnts-super-plots/ .')
         execute_cmd(f'cd {self.spname}/outs/ && ln -s ../clusters-gene/ .')
         execute_cmd(f'cd {self.spname}/outs/ && ln -s ../spots/ .')
+        #execute_cmd(f'cd {self.spname}/outs/ && ln -s ../cnts-super-plots/ .')
 
     @timer
     def run(self) -> None:
@@ -179,7 +179,7 @@ def run_single(dir, image, spname, swap_pos, step):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--mapfile', help='tsv:dir<>image<>spname<>swap_pos', required=True)
-    parser.add_argument('--step', default='input,preprocess,impute,cluster', help='comma-separated step')
+    parser.add_argument('--step', default='input,preprocess,impute,cluster,ln_outs', help='comma-separated step')
     parser.add_argument('--threads', type=int, default=1, help='thread pool size')
     args = parser.parse_args()
 
