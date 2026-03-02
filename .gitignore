@@ -23,3 +23,4 @@ result/
 *.rds
 *.ipynb
 *.pth
+*.pt
