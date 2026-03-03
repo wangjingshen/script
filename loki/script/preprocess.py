@@ -5,7 +5,7 @@ from pathlib import Path
 from get_coord import get_coord
 from h5toh5ad import h5toh5ad
 from cut_visium_spots import cut_visium_spots
-from encode import encode_space_text, encode_space_image, encode_sc_text, make_finetune
+from encode import encode_space_text, encode_space_image, encode_sc_text, finetune
 
 dev_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(dev_root))
@@ -19,6 +19,7 @@ class Loki_preprocess:
         self.hk_genes = hk_genes
         self.sc_h5ad = sc_h5ad
         self.loki_input = f'{self.spname}/loki_input/'
+        self.loki_input_finetune = f'{self.spname}/loki_input_finetune/'
         self.step = step.strip().split(',')
 
     def space_preprocess(self) -> None:
@@ -53,24 +54,23 @@ class Loki_preprocess:
 
         logger.info(f"[{self.spname}] loki_preprocess done.")
     
-    def loki_preprocess(self) -> None:
+    def loki_preprocess_finetune(self) -> None:
         '''
         preprocess_image
         '''
-        logger.info(f"[{self.spname}] Running loki_preprocess step.")
-        mkdir(self.loki_input)
-        if self.sc_h5ad is not None:
-            encode_sc_text(self.sc_h5ad, self.hk_genes, self.loki_input)
-        get_coord(self.space_input)
-        cut_visium_spots(self.space_input, f'{self.loki_input}/spots_images/')
-        encode_space_text(self.space_input, self.hk_genes, self.loki_input)
-        encode_space_image(self.space_input, f'{self.space_input}/image_coord.csv', self.loki_input)
+        logger.info(f"[{self.spname}] Running loki_preprocess_finetune step.")
+        mkdir(self.loki_input_finetune)
+        finetune(self.space_input, self.hk_genes, f'{self.loki_input}/spots_images/', self.loki_input_finetune, self.spname)
+        finetune_model = f'logs/finetune_{self.spname}/checkpoints/epoch_10.pt'
+        cut_visium_spots(self.space_input, f'{self.loki_input_finetune}/spots_images/')
+        encode_space_text(self.space_input, self.hk_genes, self.loki_input_finetune, model_path = finetune_model)
+        encode_space_image(self.space_input, f'{self.space_input}/image_coord.csv', self.loki_input_finetune, model_path = finetune_model)
 
-        logger.info(f"[{self.spname}] loki_preprocess done.")
+        logger.info(f"[{self.spname}] loki_preprocess_finetune done.")
 
     @timer
     def run(self) -> None:
-        step_order = ['space_preprocess','h5toh5ad','loki_preprocess']
+        step_order = ['space_preprocess','h5toh5ad','loki_preprocess','loki_preprocess_finetune']
         for step in step_order:
             if step in self.step:
                 getattr(self, step)()
@@ -81,7 +81,7 @@ def main():
     parser.add_argument('--spname', help='spname', required=True)
     parser.add_argument('--hk_genes', help='housekeeping_genes', required=True)
     parser.add_argument('--sc_h5ad', help='sc h5ad', default=None)
-    parser.add_argument('--step', default='space_preprocess,h5toh5ad,loki_preprocess', help='comma-separated step')
+    parser.add_argument('--step', default='space_preprocess,h5toh5ad,loki_preprocess,loki_preprocess_finetune', help='comma-separated step')
     args = parser.parse_args()
 
     runner = Loki_preprocess(args.dir, args.spname, args.hk_genes, args.sc_h5ad, args.step)
