@@ -22,55 +22,55 @@ class Loki_preprocess:
         self.loki_input_finetune = f'{self.spname}/loki_input_finetune/'
         self.step = step.strip().split(',')
 
-    def space_preprocess(self) -> None:
+    def input(self) -> None:
         '''
         generate_input
         '''
-        logger.info(f"[{self.spname}] Running space_preprocess step.")
+        logger.info(f"[{self.spname}] Running space_input step.")
         mkdir(self.space_input)
+        mkdir(self.loki_input)
+
         execute_cmd((f'cp {self.dir}/outs/filtered_feature_bc_matrix.h5 {self.space_input}'))
         execute_cmd((f'cp -r {self.dir}/outs/spatial {self.space_input}'))
         execute_cmd((f'mv {self.space_input}/spatial/positions_list.csv {self.space_input}/spatial/tissue_positions_list.csv'))
-        logger.info(f"[{self.spname}] space_preprocess done.")
 
-    def h5toh5ad(self) -> None:
-        '''
-        h5 to h5ad
-        '''
-        h5toh5ad(self.space_input)
-    
-    def loki_preprocess(self) -> None:
+        invalid_spots = cut_visium_spots(self.space_input, f'{self.loki_input}/spots_images/')
+        logger.info(f"[{self.spname}] invalid spots:{invalid_spots}.")
+
+        logger.info(f"[{self.spname}] Running h5toh5ad step.")
+        h5toh5ad(self.space_input, invalid_spots)
+        logger.info(f"[{self.spname}] space_input done.")
+            
+    def loki_encode(self) -> None:
         '''
         preprocess_image
         '''
-        logger.info(f"[{self.spname}] Running loki_preprocess step.")
-        mkdir(self.loki_input)
+        logger.info(f"[{self.spname}] Running loki_encode step.")
         if self.sc_h5ad is not None:
             encode_sc_text(self.sc_h5ad, self.hk_genes, self.loki_input)
         get_coord(self.space_input)
-        cut_visium_spots(self.space_input, f'{self.loki_input}/spots_images/')
         encode_space_text(self.space_input, self.hk_genes, self.loki_input)
         encode_space_image(self.space_input, f'{self.space_input}/image_coord.csv', self.loki_input)
 
-        logger.info(f"[{self.spname}] loki_preprocess done.")
+        logger.info(f"[{self.spname}] loki_encode done.")
     
-    def loki_preprocess_finetune(self) -> None:
+    def loki_finetune_encode(self) -> None:
         '''
         preprocess_image
         '''
-        logger.info(f"[{self.spname}] Running loki_preprocess_finetune step.")
+        logger.info(f"[{self.spname}] Running loki_finetune_encode step.")
         mkdir(self.loki_input_finetune)
         finetune(self.space_input, self.hk_genes, f'{self.loki_input}/spots_images/', self.loki_input_finetune, self.spname)
         finetune_model = f'logs/finetune_{self.spname}/checkpoints/epoch_10.pt'
-        cut_visium_spots(self.space_input, f'{self.loki_input_finetune}/spots_images/')
+        invalid_spots = cut_visium_spots(self.space_input, f'{self.loki_input_finetune}/spots_images/')
         encode_space_text(self.space_input, self.hk_genes, self.loki_input_finetune, model_path = finetune_model)
         encode_space_image(self.space_input, f'{self.space_input}/image_coord.csv', self.loki_input_finetune, model_path = finetune_model)
 
-        logger.info(f"[{self.spname}] loki_preprocess_finetune done.")
+        logger.info(f"[{self.spname}] loki_finetune_encode done.")
 
     @timer
     def run(self) -> None:
-        step_order = ['space_preprocess','h5toh5ad','loki_preprocess','loki_preprocess_finetune']
+        step_order = ['input','loki_encode','loki_finetune_encode']
         for step in step_order:
             if step in self.step:
                 getattr(self, step)()
@@ -81,7 +81,7 @@ def main():
     parser.add_argument('--spname', help='spname', required=True)
     parser.add_argument('--hk_genes', help='housekeeping_genes', required=True)
     parser.add_argument('--sc_h5ad', help='sc h5ad', default=None)
-    parser.add_argument('--step', default='space_preprocess,h5toh5ad,loki_preprocess,loki_preprocess_finetune', help='comma-separated step')
+    parser.add_argument('--step', default='input,loki_encode,loki_finetune_encode', help='comma-separated step')
     args = parser.parse_args()
 
     runner = Loki_preprocess(args.dir, args.spname, args.hk_genes, args.sc_h5ad, args.step)

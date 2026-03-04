@@ -3,15 +3,24 @@ import pandas as pd
 import numpy as np
 from PIL import Image
 import json
+from pathlib import Path
+import sys
+dev_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(dev_root))
+from utils.utils import mkdir, logger, execute_cmd, timer
 
 
-def h5toh5ad(space_input):
+def h5toh5ad(space_input, invalid_spots):
     adata = sc.read_visium(space_input)
     adata.var_names_make_unique()
     adata.obsm["spatial"] = adata.obsm["spatial"].astype(float)    # fix 10X str
     
-
     adata.layers["counts"] = adata.X.copy()
+
+    if(len(invalid_spots) > 1):
+        logger.info(f"filter invalid spots: {invalid_spots}.")
+        mask = ~adata.obs_names.isin(set(invalid_spots))
+        adata._inplace_subset_obs(mask)
 
     sc.pp.normalize_total(adata, target_sum=1e4, inplace=True)
     sc.pp.log1p(adata)
@@ -109,4 +118,4 @@ def h5toh5ad(space_input):
     )
 
     adata.X = adata.layers['normalised']
-    adata.write(f'{space_input}/filtered_feature_bc_matrix.h5ad')
+    adata.write(f'{space_input}/valid_spots.h5ad')

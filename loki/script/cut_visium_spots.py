@@ -39,7 +39,11 @@ def cut_visium_spots(celescope_space, out_dir='spots_image'):
     px_per_um = (max_x - min_x) / ((max_col - min_col) / 2) / 100
     radius = int(px_per_um * 55 / 2)
 
-    out_dir = Path(out_dir); out_dir.mkdir(exist_ok=True)
+    out_dir = Path(out_dir)
+    out_dir.mkdir(exist_ok=True)
+    
+    invalid_spots = []
+    
     h, w = img.shape[:2]
     for idx, row in spot_df.iterrows():
         cx, cy = int(row.x), int(row.y)
@@ -55,6 +59,7 @@ def cut_visium_spots(celescope_space, out_dir='spots_image'):
             print((h,w))
             print((x1,x2))
             print((y1,y2))
+            invalid_spots.append(idx)
             continue
 
         cv2.imwrite(str(out_dir / f'{idx}_hires.png'), patch)
@@ -65,6 +70,8 @@ def cut_visium_spots(celescope_space, out_dir='spots_image'):
         #cv2.imwrite(str(out_dir / f'{spot_name}.png'), patch)
 
     print(f'{len(spot_df)} spots saved to {out_dir}')
+
+    return(invalid_spots)
 
 
 def main():
