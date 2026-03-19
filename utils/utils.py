@@ -6,8 +6,8 @@ import os
 import time
 import psutil
 import time
-import functools
-#from functools import wraps
+#import functools
+from functools import wraps
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -75,12 +75,13 @@ def timer(func):
     '''
     decorator: measure execution time
     '''
-    @functools.wraps(func)
+    @wraps(func)
     def wrapper(*args, **kwargs):
+        logger.info(f"[{func.__name__}] start...")
         start = time.time()
         result = func(*args, **kwargs)
         elapsed = time.time() - start
-        logger.info(f"[{func.__name__}] time: {elapsed:.2f}s ({elapsed/60:.2f}min) ({elapsed/60/60:.2f}h) ({elapsed/60/60/24:.2f}d)")
+        logger.info(f"[{func.__name__}] done. time: {elapsed:.2f}s ({elapsed/60:.2f}min) ({elapsed/60/60:.2f}h) ({elapsed/60/60/24:.2f}d)")
         return result
     return wrapper
 
