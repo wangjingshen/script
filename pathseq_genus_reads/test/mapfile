@@ -1,0 +1,2 @@
+dir sample tax_id tax_name match_dir outdir
+/SGRNJ06/randd/PROJECT/P25062301/B1/r0_check/celescope_16S/ Control-16S /SGRNJ06/randd/PROJECT/P25062301/B1/r0_check/celescope_16S/data_input/Klebsiella_yp.tsv Klebsiella /SGRNJ06/randd/PROJECT/P25062301/B1/r0_check/rna/Control/ outdir

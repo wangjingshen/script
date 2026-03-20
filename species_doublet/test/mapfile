@@ -1,0 +1,4 @@
+percent_threshold mode name data 
+0.8 cr cr /SGRNJ06/randd/PROJECT/scATAC_scRNA_multiOmics/scRNA/cell_ranger_test/20250509_K562_3T3_auto/mA0415_T_3T3K562_PrePCR43_7cycle/cr_arc/mA0415_T_3T3K562_PrePCR43_7cycle/outs/filtered_feature_bc_matrix/
+0.8 atac atac /SGRNJ06/randd/PROJECT/scATAC_scRNA_multiOmics/scATAC/20250515_K562_3T3/mA0415_N_3T3K562/outs/mA0415_N_3T3K562_filtered_peak_count.h5
+0.8 rna rna /SGRNJ06/randd/PROJECT/scATAC_scRNA_multiOmics/scRNA/20250513_6bp/mRNA_6bp_4/outs/filtered/
